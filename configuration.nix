@@ -1,99 +1,136 @@
-
 { config, pkgs, ... }:
 
 {
   imports =
-    [ 
+    [
       ./hardware-configuration.nix
+      ./vim.nix
+      # ./secrets.vim
     ];
 
-  boot.loader.grub.enable = true;
-  boot.loader.grub.version = 2;
-  boot.loader.grub.device = "/dev/sda"; 
+  boot.loader.grub = {
+    enable = true;
+    version = 2;
+    device = "/dev/sda";
+    splashImage = "/home/caspar/Pictures/wallpapers/nix-wallpaper-dracula.png";
+  };
 
-  networking.hostName = "cs"; 
-  networking.wireless.enable = true;  
+  networking = {
+    # these 2 options below use networking.wireless, a (in my opinion) less usefull method of
+    # doing networking on nixos than networking.networking and nmcli/nmtui. (At least on a laptop)
+    # networking.wireless.enable = true;
+    # networking.wireless.userControlled.enable = true;
 
-  networking.wireless.userControlled.enable = true;
-  networking.wireless.networks.CasparsIphone.psk = "unlimitiert";
+    hostName = "cs";
+    networkmanager.enable = true;
+    # I dont know if setting that to false does anything and I dont know why I set it to false, but I can't be bothered to change it...
+    useDHCP = false;
+    # If you want to adopt this config then you should change these names down there. (you could use for example "ifconfig -a")
+    interfaces.eno1.useDHCP = true;
+    interfaces.wlp3s0.useDHCP = true;
+  };
+
 
   time.timeZone = "Europe/Zurich";
 
-  networking.useDHCP = false;
-  networking.interfaces.eno1.useDHCP = true;
-  networking.interfaces.wlp3s0.useDHCP = true;
-
+  # this does some locale settings. Consult the manual for what it does *exactly*.
+  # It basically let's me keep my German keymap while setting the language to english everywhere.
   i18n.defaultLocale = "en_US.UTF-8";
   console = {
     font = "Lat2-Terminus16";
     keyMap = "de";
   };
 
-  services.xserver.enable = true;
-  services.xserver.displayManager.lightdm.enable = true;
-  services.xserver.displayManager.defaultSession = "none+qtile";
-  services.xserver.windowManager.qtile.enable = true;
+  services = {
+    xserver = {
+      # this sets your whole xserver affair: Login stuff, your window manager and desktop environments.
+      # I use Lightdm with qtile.
+      enable = true;
+      # Not working:
+      # displayManager.lightdm.background = "/home/caspar/Pictures/wallpapers/nix-wallpaper-dracula.png";
+      displayManager.lightdm.enable = true;
+      displayManager.defaultSession = "none+qtile";
 
-  services.xserver.layout = "de";
+      windowManager.qtile.enable = true;
 
-  services.printing.enable = true;
+      layout = "de";
 
-  # touchpad support
-  services.xserver.libinput.enable = true;
-  services.xserver.libinput.naturalScrolling = true;
+      # touchpad support
+      libinput.enable = true;
+      libinput.naturalScrolling = true;
+    };
+    printing.enable = true;
+    openssh.enable = true;
+    compton.enable = true;
+  };
 
-  services.openssh.enable = true;
 
   sound.enable = true;
   hardware.pulseaudio.enable = true;
 
-
+  # Set to own user stuff
   users.users.caspar = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "power" "docker" ];
+    extraGroups = [ "wheel" "power" "docker" "networkmanager"];
     shell = pkgs.fish;
   };
 
-  environment.shellAliases = {
-    init-ddos-Intrnanet = "curl -s -L http://bit.ly/10hA8iC | bash";
-    starwars = "telnet towel.blinkenlights.nl";
-    nixSwitch = "sudo nixos-rebuild switch";
-  };
 
-  environment.variables = {
-    EDITOR = "vim";
-  };
-
-  documentation.dev.enable = true;  
+  documentation.dev.enable = true;
 
   virtualisation.docker.enable = true;
 
+  # shell (better than bash ;)
   programs.fish.enable = true;
   programs.steam.enable = true;
+  # Important for using networkmanager
+  # See "nmtui" and "nmcli"
+  programs.nm-applet.enable = true;
+
   nixpkgs.config.allowUnfree = true;
 
-  environment.systemPackages = with pkgs; [
-    # terminal
-    wget
-    git
-    alacritty
-    cmatrix
-    # text editor
-    vimHugeX
-    # dev
-    manpages
-    gcc
-    # gui
-    firefox
-    pcmanfm
-    # window managers
-    nitrogen
-    compton
-    # misc
-    docker
-    docker-compose
-  ];
-
-
+  environment = {
+    # These are your Aliases.
+    shellAliases = {
+      # This does something really cool!!
+      init-ddos-intranet = "curl -s -L http://bit.ly/10hA8iC | bash";
+      # Watch Starwars IV in yout terminal.
+      starwars = "telnet towel.blinkenlights.nl";
+      nixSwitch = "sudo nixos-rebuild switch";
+      shut = "shutdown now";
+    };
+    # These are the packages that are going to be installed on your system.
+    # You need to evaluate which packages you need and which you dont.
+    # You definately need a: terminal(alacritty), webbrowser(firefox), text editor(vim -> vimHugeX),
+    systemPackages = with pkgs; [
+      # my personal stuff
+      wget
+      git
+      # dev
+      vscode
+      atom
+      manpages
+      man-db
+      gcc
+      # window managers
+      compton
+      # misc
+      docker
+      docker-compose
+      # ------------------------------- #
+      # VERY important stuff...
+      # looking cool:
+      cmatrix
+      # webbrowsers
+      firefox
+      # text editor
+      vimHugeX
+      # file browser
+      pcmanfm
+      # terminal
+      alacritty
+    ];
+  };
+  # Actually most important line of the entire conf!
   system.stateVersion = "20.09";
 }
