@@ -1,14 +1,13 @@
 { pkgs, ... }:
 {
-  environment.variables = { EDITOR = "vim"; };
-
   environment.systemPackages = with pkgs; [
-    ((vim_configurable.override { python = python3; }).customize{
+    ((vim_configurable.override { python = python; }).customize{
       name = "vim";
       #vimrcConfig.packages.myplugins = with pkgs.vimPlugins; {
       #  start = [ vim-nix vim-lastplace ];
       #  opt = [];
       #};
+      # Idk if this works
       vimrcConfig.vam.knownPlugins = pkgs.vimPlugins;
       vimrcConfig.vam.pluginDictionaries = [
         { names = [

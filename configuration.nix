@@ -5,7 +5,6 @@
     [
       ./hardware-configuration.nix
       ./vim.nix
-      # ./secrets.vim
     ];
 
   boot.loader.grub = {
@@ -37,7 +36,7 @@
   # It basically let's me keep my German keymap while setting the language to english everywhere.
   i18n.defaultLocale = "en_US.UTF-8";
   console = {
-    font = "Lat2-Terminus16";
+    font = "mononoki";
     keyMap = "de";
   };
 
@@ -57,21 +56,39 @@
 
       # touchpad support
       libinput.enable = true;
-      libinput.naturalScrolling = true;
+      libinput.naturalScrolling = false;
     };
     printing.enable = true;
+    # printing.drivers = [ "pkgs.hplip" ];
     openssh.enable = true;
     compton.enable = true;
   };
 
+  fonts = {
+    enableDefaultFonts = true;
+      fonts = with pkgs; [
+        (nerdfonts.override { fonts = [ "Mononoki" ]; })
+        pkgs.ubuntu_font_family
+        source-code-pro
+        source-sans-pro
+      ];
+      fontconfig = {
+        defaultFonts = {
+          serif = [ "Ubuntu" ];
+          sansSerif = [ "Source Sans Pro Semibold" ];
+          monospace = [ "Source Code Pro Semibold" ];
+        };
+      };
+  };
 
   sound.enable = true;
+  sound.mediaKeys.enable = true;
   hardware.pulseaudio.enable = true;
 
   # Set to own user stuff
   users.users.caspar = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "power" "docker" "networkmanager"];
+    extraGroups = [ "wheel" "power" "docker" "networkmanager" "vboxusers"];
     shell = pkgs.fish;
   };
 
@@ -79,8 +96,9 @@
   documentation.dev.enable = true;
 
   virtualisation.docker.enable = true;
+  virtualisation.virtualbox.host.enable = true;
 
-  # shell (better than bash ;)
+  # fish shell (better than bash ;)
   programs.fish.enable = true;
   programs.steam.enable = true;
   # Important for using networkmanager
@@ -89,7 +107,12 @@
 
   nixpkgs.config.allowUnfree = true;
 
+
   environment = {
+    variables = {
+      EDITOR = "vim";
+      MANPAGER = "vim -M +MANPAGER -";
+    };
     # These are your Aliases.
     shellAliases = {
       # This does something really cool!!
@@ -117,6 +140,7 @@
       # misc
       docker
       docker-compose
+      virtualbox
       # ------------------------------- #
       # VERY important stuff...
       # looking cool:
