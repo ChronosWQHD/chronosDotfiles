@@ -11,20 +11,23 @@ BROWSER = "firefox"
 
 keys = [
     # Switch between windows in current stack pane
-    Key([mod], "k", lazy.layout.down()),
-    Key([mod], "j", lazy.layout.up()),
-
-    # Move windows up or down in current stack
-    Key([mod, "control"], "k", lazy.layout.shuffle_down()),
-    Key([mod, "control"], "j", lazy.layout.shuffle_up()),
+    Key([mod], "h", lazy.layout.left()),
+    Key([mod], "l", lazy.layout.right()),
+    Key([mod], "j", lazy.layout.down()),
+    Key([mod], "k", lazy.layout.up()),
+    Key([mod, "shift"], "h", lazy.layout.swap_left()),
+    Key([mod, "shift"], "l", lazy.layout.swap_right()),
+    Key([mod, "shift"], "j", lazy.layout.shuffle_down()),
+    Key([mod, "shift"], "k", lazy.layout.shuffle_up()),
+    Key([mod], "i", lazy.layout.grow()),
+    Key([mod], "m", lazy.layout.shrink()),
+    Key([mod], "n", lazy.layout.normalize()),
+    Key([mod], "o", lazy.layout.maximize()),
+    Key([mod, "shift"], "space", lazy.layout.flip()),
 
     # Switch window focus to other pane(s) of stack
     Key([mod], "space", lazy.layout.next()),
 
-    # Swap panes of split stack
-    Key([mod, "shift"], "space", lazy.layout.rotate()),
-
-    Key([mod, "shift"], "Return", lazy.layout.toggle_split()),
     Key([mod], "Return", lazy.spawn(TERMINAL)),
     Key([mod], "f", lazy.spawn(BROWSER)),
 
@@ -45,17 +48,17 @@ for i in groups:
         Key([mod], i.name, lazy.group[i.name].toscreen(),
             desc="Switch to group {}".format(i.name)),
 
-        Key([mod, "shift"], i.name, lazy.window.togroup(i.name, switch_group=True),
+        Key([mod, "shift"], i.name, lazy.window.togroup(i.name, switch_group=False),
             desc="Switch to & move focused window to group {}".format(i.name)),
     ])
 
-layouts = [
+layouts = [  
+    layout.MonadTall(border_focus='#0000ff', border_width=1, margin=6), 
     layout.Max(),
-    layout.Stack(num_stacks=2),
+    layout.Stack(num_stacks=2)
     # layout.Bsp(),
     # layout.Columns(),
     # layout.Matrix(),
-    layout.MonadTall(border_focus='#0000ff', border_width=1, margin=10)
     # layout.MonadWide(),
     # layout.RatioTile(),
     # layout.Tile(),
@@ -75,6 +78,7 @@ screens = [
     Screen(
         wallpaper='~/Pictures/wallpapers/wp.jpg',
         wallpaper_mode='fill',
+        
         bottom=bar.Bar(
             [
                 #  widget.Wallpaper(),
@@ -89,12 +93,31 @@ screens = [
                     name_transform=lambda name: name.upper(),
                 ),
                 widget.Systray(),
+                widget.Volume(),
                 widget.Clock(format='%d.%m.%Y, %a %H:%M'),
                 widget.Battery(format='{char}{percent:2.0%}', discharge_char=''), 
             ],
             24,
         ),
     ),
+    Screen(
+        wallpaper='~/Pictures/wallpapers/wp.jpg',
+        wallpaper_mode='fill',
+       #bottom=bar.Bar(
+       #    [
+       #        widget.GroupBox(),
+       #        widget.WindowName(),
+       #        widget.Chord(
+       #            chords_colors={
+       #                'launch': ("#ff0000", "#ffffff"),
+       #            },
+       #            name_transform=lambda name: name.upper(),
+       #        ),
+       #        widget.Clock(format='%d.%m.%Y, %a %H:%M'),
+       #    ],
+       #    15,
+       #)
+    )
 ]
 
 # Drag floating layouts.
