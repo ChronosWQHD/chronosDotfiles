@@ -141,6 +141,7 @@
       docker
       docker-compose
       virtualbox
+      bashmount
       # ------------------------------- #
       # VERY important stuff...
       # looking cool:
