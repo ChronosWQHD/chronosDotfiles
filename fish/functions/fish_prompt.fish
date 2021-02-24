@@ -1,0 +1,1 @@
+/home/caspar/.local/share/omf/themes/flash/fish_prompt.fish
